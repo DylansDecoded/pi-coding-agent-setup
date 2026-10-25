@@ -36,6 +36,8 @@ Do **not** install this checkout as an active Pi package in normal use. Loading 
 
 ## What's included
 
+Optional standalone packages live under `packages/`. [pi-code-quality](packages/pi-code-quality/README.md) provides immediate braces and cognitive-complexity feedback after edits and shell changes. Install it with `bash packages/pi-code-quality/install.sh`; this does not restore or replace the other setup resources.
+
 | Area | Included |
 | --- | --- |
 | Launcher | Compact `pi` wrapper with one-line major/minor update notices |
