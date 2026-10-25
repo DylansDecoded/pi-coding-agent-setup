@@ -3,6 +3,7 @@ set -euo pipefail
 
 package_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 source_commit=""
+source_dirty="null"
 if [[ $# -gt 0 ]]; then
   if [[ $# -ne 2 || "$1" != "--source-commit" || ! "$2" =~ ^[0-9a-f]{40}$ ]]; then
     printf 'Usage: bash install.sh [--source-commit FULL_GIT_SHA]\n' >&2
@@ -11,6 +12,10 @@ if [[ $# -gt 0 ]]; then
   source_commit=$2
 elif git -C "$package_dir" rev-parse --show-toplevel >/dev/null 2>&1; then
   source_commit=$(git -C "$package_dir" rev-parse HEAD)
+  source_dirty=false
+  if [[ -n "$(git -C "$package_dir" status --porcelain -- .)" ]]; then
+    source_dirty=true
+  fi
 fi
 for tool in node npm pi tar; do
   command -v "$tool" >/dev/null || { printf 'Required command is missing: %s\n' "$tool" >&2; exit 1; }
@@ -37,10 +42,10 @@ tar -xzf "$archive" -C "$release" --strip-components=1
 (cd "$release" && npm ci --omit=dev --ignore-scripts)
 chmod +x "$release/cli.mjs"
 node "$release/cli.mjs" --version
-node - "$release" "$source_commit" "$checksum" <<'NODE'
+node - "$release" "$source_commit" "$checksum" "$source_dirty" <<'NODE'
 const fs = require('node:fs');
-const [release, sourceCommit, archiveSha256] = process.argv.slice(2);
-fs.writeFileSync(release + '/INSTALL.json', JSON.stringify({ sourceCommit: sourceCommit || null, archiveSha256, installedAt: new Date().toISOString() }, null, 2) + '\n');
+const [release, sourceCommit, archiveSha256, sourceDirty] = process.argv.slice(2);
+fs.writeFileSync(release + '/INSTALL.json', JSON.stringify({ sourceCommit: sourceCommit || null, sourceDirty: JSON.parse(sourceDirty), archiveSha256, installedAt: new Date().toISOString() }, null, 2) + '\n');
 NODE
 if [[ -e "$install_root/current" && ! -L "$install_root/current" ]]; then
   printf 'Refusing to replace unrelated directory: %s\n' "$install_root/current" >&2
