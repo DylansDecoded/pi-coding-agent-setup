@@ -1,0 +1,22 @@
+{
+  "name": "pi-code-quality",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Immediate braces and cognitive-complexity checks for Pi edits and shell changes.",
+  "license": "UNLICENSED",
+  "keywords": ["pi-package"],
+  "engines": { "node": ">=22.16" },
+  "bin": { "pi-code-quality": "./cli.mjs" },
+  "files": ["cli.mjs", "core.mjs", "extension.ts", "install.sh", "README.md", "npm-shrinkwrap.json"],
+  "pi": { "extensions": ["./extension.ts"] },
+  "scripts": { "test": "node --test test.mjs", "check": "node cli.mjs check core.mjs cli.mjs extension.ts test.mjs smoke-pi.mjs" },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.72.0",
+    "eslint": "10.13.0",
+    "eslint-plugin-sonarjs": "4.2.2",
+    "typescript": "6.0.3"
+  },
+  "peerDependencies": { "@earendil-works/pi-coding-agent": "*" },
+  "peerDependenciesMeta": { "@earendil-works/pi-coding-agent": { "optional": true } }
+}
